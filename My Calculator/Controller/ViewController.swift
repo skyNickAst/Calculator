@@ -11,7 +11,25 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var displayLabel: UILabel!
     
-    var isFinishedTypingNumber = true
+    private var isFinishedTypingNumber = true
+    
+    private var displayValue: Double {
+        get {
+            guard let number = Double(displayLabel.text!) else {
+                fatalError("Cannot convert displayLabel.text! to Double")
+            }
+            return number
+        }
+        set {
+            if String(newValue).hasSuffix(".0") {
+                displayLabel.text = String(format: "%.0f", newValue)
+            } else {
+                displayLabel.text = String(newValue)
+            }
+        }
+    }
+    
+    private var calculator = CalculatorLogic()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,22 +37,19 @@ class ViewController: UIViewController {
     }
     
     @IBAction func calcButtonPressed(_ sender: UIButton) {
+        
         isFinishedTypingNumber = true
+        calculator.setNumber(displayValue)
         
         if displayLabel.text == "0," {
             displayLabel.text = "0"
         }
-        let number = Double(displayLabel.text!)!
         
-        if let calcMethod = sender.currentTitle {
-            if calcMethod == "+/-" {
-                displayLabel.text = String(number * -1)
-            } else if calcMethod == "AC" {
-                displayLabel.text = "0"
-            } else if calcMethod == "%" {
-                displayLabel.text = String(number / 100)
-            }
+        if let result = calculator.calculate(symbol: sender.currentTitle!) {
+            displayValue = result
+            
         }
+        
     }
     
     @IBAction func numButtonPressed(_ sender: UIButton) {
@@ -60,5 +75,4 @@ class ViewController: UIViewController {
         }
     }
     
-
 }
